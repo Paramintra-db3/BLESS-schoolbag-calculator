@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>เครื่องคำนวณน้ำหนักกระเป๋า</title>
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    padding:20px;
+    font-family:Sarabun,Tahoma,sans-serif;
+    background:#f4f8ff;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.container{
+    background:white;
+    width:100%;
+    max-width:500px;
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 4px 15px rgba(0,0,0,.15);
+}
+
+h1{
+    text-align:center;
+    color:#1565c0;
+    margin-bottom:20px;
+}
+
+label{
+    display:block;
+    margin-top:15px;
+    margin-bottom:5px;
+    font-weight:bold;
+}
+
+input{
+    width:100%;
+    padding:14px;
+    border:1px solid #ccc;
+    border-radius:10px;
+    font-size:16px;
+}
+
+button{
+    width:100%;
+    margin-top:20px;
+    padding:15px;
+    border:none;
+    border-radius:10px;
+    background:#1565c0;
+    color:white;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#0d47a1;
+}
+
+.result{
+    margin-top:20px;
+    text-align:center;
+    line-height:1.8;
+}
+
+.percent{
+    font-size:34px;
+    font-weight:bold;
+    color:#1565c0;
+}
+
+.safe{
+    color:green;
+    font-weight:bold;
+}
+
+.caution{
+    color:#ff9800;
+    font-weight:bold;
+}
+
+.danger{
+    color:red;
+    font-weight:bold;
+}
+
+.qr-section{
+    text-align:center;
+    margin-top:30px;
+}
+
+#qrcode{
+    display:flex;
+    justify-content:center;
+    margin:15px 0;
+}
+
+.qr-text{
+    color:#666;
+    font-size:14px;
+}
+
+.footer{
+    text-align:center;
+    margin-top:20px;
+    color:#888;
+    font-size:13px;
+}
+
+@media (max-width:600px){
+
+    body{
+        padding:10px;
+    }
+
+    .container{
+        padding:20px;
+    }
+
+    h1{
+        font-size:24px;
+    }
+
+    button{
+        font-size:18px;
+    }
+
+    .percent{
+        font-size:30px;
+    }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🎒 เครื่องคำนวณน้ำหนักกระเป๋า</h1>
+
+    <label>น้ำหนักตัว (กิโลกรัม)</label>
+    <input
+        type="number"
+        id="bodyWeight"
+        step="0.1"
+        placeholder="เช่น 50">
+
+    <label>น้ำหนักกระเป๋า (กิโลกรัม)</label>
+    <input
+        type="number"
+        id="bagWeight"
+        step="0.1"
+        placeholder="เช่น 5">
+
+    <button onclick="calculate()">
+        คำนวณ
+    </button>
+
+    <div id="result" class="result"></div>
+
+    <hr style="margin-top:30px;">
+
+    <div class="qr-section">
+
+        <h3>สแกน QR Code เพื่อแชร์เว็บนี้</h3>
+
+        <div id="qrcode"></div>
+
+        <div class="qr-text">
+            แชร์ให้เพื่อนทดลองประเมินน้ำหนักกระเป๋า
+        </div>
+
+    </div>
+
+    <div class="footer">
+        พัฒนาโดย นายปราการ เนาวบุตร ม.6/1
+    </div>
+
+</div>
+
+<script>
+
+function calculate(){
+
+    let bodyWeight =
+        parseFloat(
+            document.getElementById("bodyWeight").value
+        );
+
+    let bagWeight =
+        parseFloat(
+            document.getElementById("bagWeight").value
+        );
+
+    if(
+        isNaN(bodyWeight) ||
+        isNaN(bagWeight) ||
+        bodyWeight <= 0
+    ){
+
+        document.getElementById("result").innerHTML =
+        "<span style='color:red;'>กรุณากรอกข้อมูลให้ถูกต้อง</span>";
+
+        return;
+    }
+
+    let percent =
+        (bagWeight / bodyWeight) * 100;
+
+    let level = "";
+
+    if(percent <= 10){
+
+        level =
+        "<div class='safe'>✅ อยู่ในเกณฑ์แนะนำ (ไม่เกิน 10%)</div>";
+
+    }else if(percent <=15){
+
+        level =
+        "<div class='caution'>⚠️ ควรระวัง (10-15%)</div>";
+
+    }else{
+
+        level =
+        "<div class='danger'>❌ เสี่ยงต่อการปวดหลัง (>15%)</div>";
+
+    }
+
+    document.getElementById("result").innerHTML =
+
+    `
+    <div>
+        น้ำหนักกระเป๋าคิดเป็น
+    </div>
+
+    <div class="percent">
+        ${percent.toFixed(2)}%
+    </div>
+
+    ${level}
+    `;
+}
+
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<script>
+
+window.onload = function(){
+
+    const qrSize =
+        Math.min(
+            window.innerWidth * 0.45,
+            220
+        );
+
+    new QRCode(
+        document.getElementById("qrcode"),
+        {
+            text: window.location.href,
+            width: qrSize,
+            height: qrSize,
+            correctLevel: QRCode.CorrectLevel.H
+        }
+    );
+
+};
+
+</script>
+
+</body>
+</html>
